@@ -1,4 +1,3 @@
-# Compilateur et options
 CC = gcc
 CFLAGS = -Wall -Wextra -O2 -Iinclude
 
@@ -7,45 +6,51 @@ SRC_DIR = src
 BUILD_DIR = build
 BIN_DIR = bin
 
-# Fichiers sources
+# --- Librairie algorithmes ---
 ALGO_SRC = $(SRC_DIR)/naif.c $(SRC_DIR)/satStructure.c
-TIMER_SRC = $(SRC_DIR)/timerInterface.c $(SRC_DIR)/parser.c
+ALGO_OBJ = $(ALGO_SRC:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
+ALGO_LIB = $(BUILD_DIR)/libalgos.a
 
-# Fichiers objets
-ALGO_OBJ = $(BUILD_DIR)/naif.o $(BUILD_DIR)/satStructure.o
-TIMER_OBJ = $(TIMER_SRC:$(SRC_DIR)/%.c=build/%.o)
+# --- Librairie utilitaires ---
+UTIL_SRC = $(SRC_DIR)/parser.c $(SRC_DIR)/timer.c
+UTIL_OBJ = $(UTIL_SRC:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
+UTIL_LIB = $(BUILD_DIR)/libutils.a
 
-# Librairie et exécutable
-LIB = $(BUILD_DIR)/libalgos.a
-EXEC = $(BIN_DIR)/timerInterface
+# --- Exécutables ---
+EXE_SRC = $(SRC_DIR)/chrono.c $(SRC_DIR)/compare.c $(SRC_DIR)/resolve.c
+EXE_OBJ = $(EXE_SRC:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
+EXECS = $(BIN_DIR)/chrono $(BIN_DIR)/compare $(BIN_DIR)/resolve
+
+# --- Interface Python ---
 INTERFACE = interface.py
 
-# ----------------------
-# Règles principales
-# ----------------------
-all: $(LIB) $(EXEC)
+# Compile tout
+all: $(ALGO_LIB) $(UTIL_LIB) $(EXECS)
 
-# Création de la librairie statique
-$(LIB): $(ALGO_OBJ)
+# --- Librairie algos ---
+$(ALGO_LIB): $(ALGO_OBJ)
+	@mkdir -p $(BUILD_DIR)
 	ar rcs $@ $^
 
-# Compilation de l'exécutable timerInterface lié à la librairie
-$(EXEC): $(TIMER_OBJ) $(LIB)
-	@mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $@ $(TIMER_OBJ) -L$(BUILD_DIR) -lalgos
+# --- Librairie utilitaires ---
+$(UTIL_LIB): $(UTIL_OBJ)
+	@mkdir -p $(BUILD_DIR)
+	ar rcs $@ $^
 
-# Compilation générique des .c en .o
+# --- Compilation exécutables ---
+$(BIN_DIR)/%: $(BUILD_DIR)/%.o $(ALGO_LIB) $(UTIL_LIB)
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $@ $^ -L$(BUILD_DIR) -lalgos -lutils
+
+# --- Compilation générique ---
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Nettoyage
 clean:
 	rm -rf $(BUILD_DIR) $(BIN_DIR)
 
-# Donner la commande à l'interface
-run: $(INTERFACE)
+run: all
 	python3 $(INTERFACE) $(ARGS)
 
 .PHONY: all clean run
-

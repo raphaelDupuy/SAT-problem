@@ -6,20 +6,23 @@
 #include "satStructure.h"
 
 char *printSol(struct solution S) {
-    char *res = malloc(S.k + 2);
+    int taille = (S.k * 2) + 3;
+    char *res = malloc(taille);
     if (!res) return NULL;
 
-    strcpy(res, "[");
-    for (int index = 0; index < S.k; index++) {
-        char var[5];
-        sprintf(var, "%d,", S.variables[index]);
-        strcat(res, var);
+    char *ptr = res;
+    *ptr++ = '[';
+
+    for (int i = 0; i < S.k; i++) {
+        ptr += sprintf(ptr, "%d,", S.variables[i]);
     }
 
-    res[strlen(res)-1] = ']';
-    res[strlen(res)] = '\0';
+    *(ptr - 1) = ']';
+    *ptr = '\0';
+
     return res;
 }
+
 
 char *printClause(struct clause C) {
     char *res = malloc((2 + 3 * C.taille) * sizeof(char));
@@ -61,6 +64,12 @@ void freeProbleme(struct probleme *P) {
 void freeSolution(struct solution *S) {
     free(S->variables);
     free(S);
+
+}
+
+void freeResult(struct result *R) {
+    free(R->sol.variables);
+    free(R);
 
 }
 

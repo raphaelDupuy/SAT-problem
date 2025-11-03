@@ -7,67 +7,66 @@
 
 struct probleme *parseProbleme(const char* F) {
     FILE *f = fopen(F, "r");
-
-    if (!f) {
-        perror("Erreur ouverture fichier");
-        exit(100);
-    }
+    if (!f) { perror("Erreur ouverture fichier"); exit(100); }
 
     struct probleme *P = malloc(sizeof(struct probleme));
-    if (P == NULL) { perror("malloc"); exit(40); }  
+    if (!P) { perror("malloc"); exit(40); }
 
     char ligne[512];
-    int valeur = 0;
-    int lineCount = 0;
-    int nbClauses = 0;
-    int indexClause = 0;
-    int nbVariables;
+    int nbVariables = 0, nbClauses = 0;
 
-
+    // trouve la ligne "p cnf"
     while (fgets(ligne, sizeof(ligne), f)) {
-        if (lineCount >= 5) {
-            if (lineCount == 5) {
-                // Extrait k pour k-sat
-                valeur = atoi(ligne + 20);
+        if (ligne[0] == 'c') continue; // commentaires
+        if (ligne[0] == 'p') {
+            if (sscanf(ligne, "p cnf %d %d", &nbVariables, &nbClauses) != 2) {
+                fprintf(stderr, "Erreur lecture ligne CNF\n"); exit(1);
             }
-
-            if (lineCount == 7) {
-                // Extrait nbVariables, nbClauses
-                if (sscanf(ligne, "p cnf %d %d", &nbVariables, &nbClauses) != 2) {
-                    printf("Erreur de lecture de la ligne CNF\n");
-                }
-                //printf("%d-SAT, %d variables, %d clauses\n", valeur, nbVariables, nbClauses);
-            }
-
-            P->k = valeur;
-            P->variableCount = nbVariables;
-            P->clauseCount = nbClauses;
-
-            struct clause *fonction = malloc(nbClauses * sizeof(struct clause));
-            if (fonction == NULL) { perror("malloc"); exit(50); }
-            
-            P->fonction = fonction;
-
-            if (lineCount > 7 && lineCount < 8 + nbClauses) {
-                int litteraux[valeur];
-
-                char *token = strtok(ligne, " \t\n");
-                int i = 0;
-                while (token && i < valeur) {
-                    litteraux[i++] = atoi(token);
-                    token = strtok(NULL, " \t\n");
-                }
-
-                struct clause C = {valeur, litteraux};
-                fonction[indexClause++] = C;
-            }
+            break;
         }
-        lineCount++;
     }
 
-    if (fclose(f) != 0) {
-        perror("Erreur fermeture fichier");
+    P->variableCount = nbVariables;
+    P->clauseCount = nbClauses;
+    P->k = 0; // valeur k
+
+    // Allocation du tableau de clauses
+    P->fonction = malloc(nbClauses * sizeof(struct clause));
+    if (!P->fonction) { perror("malloc clauses"); exit(2); }
+
+    // Lire chaque clause
+    int clauseIndex = 0;
+    while (fgets(ligne, sizeof(ligne), f) && clauseIndex < nbClauses) {
+        if (ligne[0] == 'c' || ligne[0] == 'p') continue;
+
+        // Compter le nombre de littéraux
+        int nLit = 0;
+        char *tmp = strdup(ligne); // pour strtok sans altérer ligne
+        char *token = strtok(tmp, " \t\n");
+        while (token) { nLit++; token = strtok(NULL, " \t\n"); }
+        free(tmp);
+
+        if (nLit == 0) continue;
+
+        // Allocation dynamique des littéraux
+        int *litteraux = malloc(nLit * sizeof(int));
+        if (!litteraux) { perror("malloc clause litteraux"); exit(3); }
+
+        int i = 0;
+        token = strtok(ligne, " \t\n");
+        while (token && i < nLit) {
+            litteraux[i++] = atoi(token);
+            token = strtok(NULL, " \t\n");
+        }
+
+        // Stocker dans la structure
+        P->fonction[clauseIndex].taille = nLit;
+        P->fonction[clauseIndex].litteraux = litteraux;
+
+        clauseIndex++;
     }
+
+    fclose(f);
     return P;
 }
 

@@ -8,6 +8,11 @@ struct solution {
     int *variables;
 };
 
+struct result {
+    int exists;
+    struct solution sol;
+};
+
 struct clause {
     int taille;
     litteral *litteraux;
@@ -26,5 +31,6 @@ char *printPb(struct probleme P);
 int check(struct probleme *P, struct solution *S);
 void freeProbleme(struct probleme *P);
 void freeSolution(struct solution *S);
+void freeResult(struct result *R);
 
 #endif

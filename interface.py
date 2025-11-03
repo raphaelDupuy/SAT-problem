@@ -3,18 +3,20 @@ import sys
 
 if __name__ == '__main__':
 
-    dir = "./bin/timerInterface"
+    dir = "./bin/"
 
     args = sys.argv[1:]
-    arguments = (dir, args[0], args[1], args[2])
     match (args[0]):
         case "chrono":
-            pass
+            dir += "chrono"
+            # + Pb / DB
         case "compare":
-            pass
+            dir += "compare"
+            # + ens des algo à comparer
         case "resolve":
-            pass
+            dir += "resolve"
         case _:
             pass
 
+    arguments = (dir, args[1], args[2])
     result = subprocess.run(arguments).stdout
