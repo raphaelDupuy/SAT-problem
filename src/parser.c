@@ -2,8 +2,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
+#include "naif.h"
 #include "satStructure.h"
+
+typedef enum {
+    PARSE_FILE,
+    PARSE_DIR
+} ParseType; 
+
+struct parsedPath {
+    ParseType type;
+    int count;
+    struct probleme *single;
+    struct probleme **multiple;
+};
+
+AlgoFunc parseAlgo(const char *algoName) {
+
+    if (strcmp(algoName, "naif") == 0) {
+        return &satisfyNaif;
+    }
+       printf("No algorithm named : %s\n", algoName);
+       perror("AlgoName parsing");
+       return NULL;
+
+}
 
 struct probleme *parseProbleme(const char* F) {
     FILE *f = fopen(F, "r");
@@ -30,25 +56,21 @@ struct probleme *parseProbleme(const char* F) {
     P->clauseCount = nbClauses;
     P->k = 0; // valeur k
 
-    // Allocation du tableau de clauses
     P->fonction = malloc(nbClauses * sizeof(struct clause));
     if (!P->fonction) { perror("malloc clauses"); exit(2); }
 
-    // Lire chaque clause
     int clauseIndex = 0;
     while (fgets(ligne, sizeof(ligne), f) && clauseIndex < nbClauses) {
         if (ligne[0] == 'c' || ligne[0] == 'p') continue;
 
-        // Compter le nombre de littéraux
         int nLit = 0;
-        char *tmp = strdup(ligne); // pour strtok sans altérer ligne
+        char *tmp = strdup(ligne); 
         char *token = strtok(tmp, " \t\n");
         while (token) { nLit++; token = strtok(NULL, " \t\n"); }
         free(tmp);
 
         if (nLit == 0) continue;
 
-        // Allocation dynamique des littéraux
         int *litteraux = malloc(nLit * sizeof(int));
         if (!litteraux) { perror("malloc clause litteraux"); exit(3); }
 
@@ -59,7 +81,6 @@ struct probleme *parseProbleme(const char* F) {
             token = strtok(NULL, " \t\n");
         }
 
-        // Stocker dans la structure
         P->fonction[clauseIndex].taille = nLit;
         P->fonction[clauseIndex].litteraux = litteraux;
 
@@ -113,5 +134,38 @@ struct probleme **parseDbProbleme(const char* dirname, int *count) {
     closedir(dir);
     printf("\nParsing successful\n");
     return problemes;
+}
+
+struct parsedPath *parseAll(const char *dirOrFile) {
+    struct parsedPath *result = malloc(sizeof(struct parsedPath));
+    if (!result) { perror("malloc"); exit(1); }
+
+    struct stat path_stat;
+    if (stat(dirOrFile, &path_stat) != 0) {
+        perror("Erreur stat");
+        free(result);
+        return NULL;
+    }
+
+    if (S_ISREG(path_stat.st_mode)) {
+        // Cas fichier
+        result->type = PARSE_FILE;
+        result->count = 1;
+        result->single = parseProbleme(dirOrFile);
+        result->multiple = NULL;
+    } 
+    else if (S_ISDIR(path_stat.st_mode)) {
+        // Cas dossier
+        result->type = PARSE_DIR;
+        result->multiple = parseDbProbleme(dirOrFile, &result->count);
+        result->single = NULL;
+    } 
+    else {
+        fprintf(stderr, "Erreur: %s n'est ni un fichier ni un dossier\n", dirOrFile);
+        free(result);
+        return NULL;
+    }
+
+    return result;
 }
 

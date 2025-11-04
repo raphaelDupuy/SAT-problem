@@ -1,3 +1,4 @@
 db/**/*.cnf
 bin
 build
+.vscode/*

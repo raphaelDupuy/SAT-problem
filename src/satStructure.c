@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include "satStructure.h"
+#include "parser.h"
 
 char *printSol(struct solution S) {
     int taille = (S.k * 2) + 3;
@@ -22,7 +23,6 @@ char *printSol(struct solution S) {
 
     return res;
 }
-
 
 char *printClause(struct clause C) {
     char *res = malloc((2 + 3 * C.taille) * sizeof(char));

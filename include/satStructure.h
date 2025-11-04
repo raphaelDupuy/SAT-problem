@@ -25,6 +25,8 @@ struct probleme {
     struct clause *fonction;
 };
 
+typedef int (*AlgoFunc)(struct probleme *);
+
 char *printSol(struct solution S);
 char *printClause(struct clause C);
 char *printPb(struct probleme P);

@@ -7,22 +7,23 @@
 #include "parser.h"
 #include "satStructure.h"
 
-int (*parseAlgo(const char *algoName)) (struct probleme *) {
-
-    if (strcmp(algoName, "naif") == 0) {
-        return &satisfyNaif;
-    }
-       printf("No algorithm named : %s\n", algoName);
-       perror("AlgoName parsing");
-       return NULL;
-
-}
-
-double runAndTime(int (*algo)(struct probleme *), struct probleme *P) {
+double runAndTime(AlgoFunc algo, struct probleme *P) {
     clock_t start = clock();
     
     algo(P);
     
     clock_t end = clock();
     return (double)(end - start) / CLOCKS_PER_SEC;
+}
+
+double meanTime(AlgoFunc algo, struct probleme **P, int count) {
+
+    double sum = 0;
+    for (int index = 0; index < count; index++) {
+        printf("\rcurrent pb : %d/%d", index + 1, count);
+        fflush(stdout);
+        sum += runAndTime(algo, P[index]);
+    }
+
+    return sum / count;
 }
