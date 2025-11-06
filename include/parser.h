@@ -17,7 +17,10 @@ struct parsedPath {
 
 struct probleme* parseProbleme(const char *F);
 struct probleme** parseDbProbleme(const char *F, int *count);
-struct parsedPath *parseAll(const char *dirOrFile);
+struct parsedPath *parseAllPaths(const char *dirOrFile);
+void freeParsedPath(struct parsedPath);
+
 AlgoFunc parseAlgo(const char *algoName);
+AlgoFunc *parseAlgoSet(const char *algoNames, int *nbAlgo);
 
 #endif

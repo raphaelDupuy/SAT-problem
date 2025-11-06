@@ -8,6 +8,12 @@
 #include "satStructure.h"
 
 double runAndTime(AlgoFunc algo, struct probleme *P) {
+
+
+    if (P->fonction == NULL) {
+        fprintf(stderr, "Erreur: P->fonction est NULL !\n");
+        return -1;
+    }
     clock_t start = clock();
     
     algo(P);

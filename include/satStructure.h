@@ -25,11 +25,11 @@ struct probleme {
     struct clause *fonction;
 };
 
-typedef int (*AlgoFunc)(struct probleme *);
+typedef struct result *(*AlgoFunc)(struct probleme *);
 
-char *printSol(struct solution S);
-char *printClause(struct clause C);
-char *printPb(struct probleme P);
+char *printSol(struct solution *S);
+char *printClause(struct clause *C);
+char *printPb(struct probleme *P);
 int check(struct probleme *P, struct solution *S);
 void freeProbleme(struct probleme *P);
 void freeSolution(struct solution *S);

@@ -20,20 +20,9 @@ struct parsedPath {
     struct probleme **multiple;
 };
 
-AlgoFunc parseAlgo(const char *algoName) {
-
-    if (strcmp(algoName, "naif") == 0) {
-        return &satisfyNaif;
-    }
-       printf("No algorithm named : %s\n", algoName);
-       perror("AlgoName parsing");
-       return NULL;
-
-}
-
 struct probleme *parseProbleme(const char* F) {
     FILE *f = fopen(F, "r");
-    if (!f) { perror("Erreur ouverture fichier"); exit(100); }
+    if (!f) { printf("%s : ", F); perror("Erreur ouverture fichier "); exit(100); }
 
     struct probleme *P = malloc(sizeof(struct probleme));
     if (!P) { perror("malloc"); exit(40); }
@@ -132,11 +121,10 @@ struct probleme **parseDbProbleme(const char* dirname, int *count) {
     }
 
     closedir(dir);
-    printf("\nParsing successful\n");
     return problemes;
 }
 
-struct parsedPath *parseAll(const char *dirOrFile) {
+struct parsedPath *parseAllPaths(const char *dirOrFile) {
     struct parsedPath *result = malloc(sizeof(struct parsedPath));
     if (!result) { perror("malloc"); exit(1); }
 
@@ -169,3 +157,46 @@ struct parsedPath *parseAll(const char *dirOrFile) {
     return result;
 }
 
+AlgoFunc parseAlgo(char algoName) {
+
+    if (algoName == 'n' || algoName == 'N') {
+        return &satisfyNaif;
+    } else {
+        return NULL;
+    }
+
+}
+
+AlgoFunc *parseAlgoSet(const char *algoNames, int *nbAlgo) {
+
+    int len = strlen(algoNames);
+    *nbAlgo = len;
+
+    AlgoFunc *algos = malloc(len * sizeof(AlgoFunc));
+    if (!algos) { perror("malloc"); exit(2000); }
+
+    for (int index = 0; index < len; index++) {
+        AlgoFunc currentAlgo = parseAlgo(algoNames[index]);
+        if (currentAlgo == NULL) { printf("Unknown algorithm\n"); }
+        algos[index] = currentAlgo;
+    }
+
+    return algos;
+
+}
+
+void freeParsedPath(struct parsedPath *path) {
+    if (!path) return;
+
+    if (path->multiple != NULL) {
+        for (int i = 0; i < path->count; i++) {
+            freeProbleme(path->multiple[i]);
+        }
+        free(path->multiple);
+
+    } else if (path->single != NULL) {
+        freeProbleme(path->single);
+    }
+
+    free(path);
+}

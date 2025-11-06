@@ -9,14 +9,17 @@ if __name__ == '__main__':
     match (args[0]):
         case "chrono":
             dir += "chrono"
-            # + Pb / DB
+            arguments = (dir, args[1], args[2])
         case "compare":
             dir += "compare"
-            # + ens des algo à comparer
+            arguments = (dir, args[1], args[2])
         case "resolve":
             dir += "resolve"
+            if (len(args) == 2):
+                arguments = (dir, args[1])
+            elif (len(args) == 3):
+                arguments = (dir, args[1], args[2])
         case _:
             pass
 
-    arguments = (dir, args[1], args[2])
     result = subprocess.run(arguments).stdout

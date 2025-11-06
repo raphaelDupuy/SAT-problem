@@ -4,23 +4,31 @@
 #include "parser.h"
 #include "satStructure.h"
 
+// chrono algo {Path to file or database}
 int main(int argc, char *argv[]) {
 
     (void) argc;
-    struct parsedPath *path = parseAll(argv[2]);
-    AlgoFunc algo = parseAlgo(argv[1]);
-    if (path->type == PARSE_FILE) {
+    struct parsedPath *target = parseAllPaths(argv[2]);
 
-        struct probleme *P = path->single;
+    const char *algoName = argv[1];
 
-        printf("Temps avec algo %s : %f", argv[1], runAndTime(algo, P));
+    int nbAlgo = 0;
+    AlgoFunc *algo = parseAlgoSet(algoName, &nbAlgo);
 
-    } else if (path->type == PARSE_DIR) {
+    if (!algo) {
+        printf("Algorithm parsing not succesfull\n");
+    }
+
+    if (target->type == PARSE_FILE) {
+
+        double temps = runAndTime(algo[0], target->single);
+        printf("CPU time with %s : %f\n", argv[1], temps);
+
+    } else if (target->type == PARSE_DIR) {
         
-        struct probleme **Pbs = path->multiple;
-
-        int *count = 0;
-        printf("Temps moyen avec algo %s : %f", argv[1], meanTime(algo, Pbs, count));
+        struct probleme **Pbs = target->multiple;
+        double tempsMoyen = meanTime(algo[0], Pbs, target->count);
+        printf("Mean time with %s : %f", argv[1], meanTime(algo[0], Pbs, tempsMoyen));
 
     }
 

@@ -6,16 +6,16 @@
 #include "satStructure.h"
 #include "parser.h"
 
-char *printSol(struct solution S) {
-    int taille = (S.k * 2) + 3;
+char *printSol(struct solution *S) {
+    int taille = (S->k * 2) + 3;
     char *res = malloc(taille);
     if (!res) return NULL;
 
     char *ptr = res;
     *ptr++ = '[';
 
-    for (int i = 0; i < S.k; i++) {
-        ptr += sprintf(ptr, "%d,", S.variables[i]);
+    for (int i = 0; i < S->k; i++) {
+        ptr += sprintf(ptr, "%d,", S->variables[i]);
     }
 
     *(ptr - 1) = ']';
@@ -24,14 +24,14 @@ char *printSol(struct solution S) {
     return res;
 }
 
-char *printClause(struct clause C) {
-    char *res = malloc((2 + 3 * C.taille) * sizeof(char));
+char *printClause(struct clause *C) {
+    char *res = malloc((2 + 3 * C->taille) * sizeof(char));
     if (!res) return NULL;
 
     strcpy(res, "(");
-    for (int indexLitteral = 0; indexLitteral < C.taille; indexLitteral++) {
+    for (int indexLitteral = 0; indexLitteral < C->taille; indexLitteral++) {
         char litt[5];
-        sprintf(litt, "%dv", C.litteraux[indexLitteral]);
+        sprintf(litt, "%dv", C->litteraux[indexLitteral]);
         strcat(res, litt);
     }
 
@@ -40,11 +40,11 @@ char *printClause(struct clause C) {
     return res;
 }
 
-char *printPb(struct probleme P) {
-    char *res = malloc((25 + P.k * sizeof(struct clause)) * sizeof(char));
+char *printPb(struct probleme *P) {
+    char *res = malloc((25 + P->k * sizeof(struct clause)) * sizeof(char));
     strcpy(res, "Fonction à satisfaire: [");
-    for (int indexClause = 0; indexClause < P.clauseCount; indexClause++) {
-        char *s = printClause(P.fonction[indexClause]);
+    for (int indexClause = 0; indexClause < P->clauseCount; indexClause++) {
+        char *s = printClause(&P->fonction[indexClause]);
         strcat(res, s);
         strcat(res, "^");
         free(s);

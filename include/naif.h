@@ -3,6 +3,6 @@
 
 #include "satStructure.h"
 
-int satisfyNaif(struct probleme *P);
+struct result *satisfyNaif(struct probleme *P);
 
 #endif
