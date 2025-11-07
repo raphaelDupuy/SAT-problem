@@ -2,3 +2,4 @@ db/**/*.cnf
 bin
 build
 .vscode/*
+todo.txt

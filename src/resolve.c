@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "parser.h"
 #include "satStructure.h"
@@ -25,6 +27,10 @@ int main(int argc, char *argv[]) {
         path = argv[2];
     }
 
+    size_t len = strlen(path);
+    if (len < 4 || strcmp(path + len - 4, ".cnf") != 0) {
+        printf("Path %s does not lead to a file\n", path); exit(9);
+    }
 
     int nbAlgo = 0;
     AlgoFunc *algo = parseAlgoSet(algoName, &nbAlgo);
