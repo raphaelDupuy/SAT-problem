@@ -33,7 +33,9 @@ int main(int argc, char *argv[]) {
 
         printf("Target is File, %d algo to run\n", nbAlgo);
         for (int index = 0; index < nbAlgo; index++) {
-            double execTime = runAndTime(*algos[index], target->single);
+            int sat = 0;
+            double execTime = runAndTime(*algos[index], target->single, &sat);
+            printf("Satisfaisable : %d\n", sat);
             printf("\nCPU time for %c : %f\n", algoNames[index], execTime);
         }
 
@@ -43,8 +45,10 @@ int main(int argc, char *argv[]) {
 
         printf("Target is Dir, nbAlgo : %d\n", nbAlgo);
         for (int index = 0; index < nbAlgo; index++) {
-            double meanExecTime = meanTime(*algos[index], target->multiple, target->count);
-            printf("\nAverage CPU time for %c : %f\n", algoNames[index], meanExecTime);
+            int satCount = 0;
+            double meanExecTime = meanTime(*algos[index], target->multiple, target->count, &satCount);
+            printf("\n%d / %d satisfaisables\n", satCount, target->count);
+            printf("Average CPU time for %c : %f\n", algoNames[index], meanExecTime);
         }
     }
 

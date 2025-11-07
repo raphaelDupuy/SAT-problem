@@ -5,7 +5,7 @@
 #include "parser.h"
 #include "satStructure.h"
 
-double meanTime(AlgoFunc, struct probleme **P, int count);
-double runAndTime(AlgoFunc, struct probleme *P);
+double meanTime(AlgoFunc, struct probleme **P, int count, int *satCount);
+double runAndTime(AlgoFunc, struct probleme *P, int *sat);
 
 #endif

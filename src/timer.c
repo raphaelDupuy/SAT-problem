@@ -7,7 +7,7 @@
 #include "parser.h"
 #include "satStructure.h"
 
-double runAndTime(AlgoFunc algo, struct probleme *P) {
+double runAndTime(AlgoFunc algo, struct probleme *P, int *sat) {
 
 
     if (P->fonction == NULL) {
@@ -16,19 +16,24 @@ double runAndTime(AlgoFunc algo, struct probleme *P) {
     }
     clock_t start = clock();
     
-    algo(P);
+    struct result *res = algo(P);
     
     clock_t end = clock();
+
+    *sat = res->exists;
+
     return (double)(end - start) / CLOCKS_PER_SEC;
 }
 
-double meanTime(AlgoFunc algo, struct probleme **P, int count) {
+double meanTime(AlgoFunc algo, struct probleme **P, int count, int *satCount) {
 
     double sum = 0;
     for (int index = 0; index < count; index++) {
         printf("\rcurrent pb : %d/%d", index + 1, count);
         fflush(stdout);
-        sum += runAndTime(algo, P[index]);
+        int sat = 0;
+        sum += runAndTime(algo, P[index], &sat);
+        *satCount += sat;
     }
 
     return sum / count;
