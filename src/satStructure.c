@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,6 +22,7 @@ char *printSol(struct solution *S) {
     *(ptr - 1) = ']';
     *ptr = '\0';
 
+    printf("Printing solution : %s\n", res);
     return res;
 }
 
@@ -71,6 +73,32 @@ void freeResult(struct result *R) {
     free(R->sol.variables);
     free(R);
 
+}
+
+int satisfiesClause(struct clause *C, struct solution *S) {
+    
+    for (int indexLitteral = 0; indexLitteral < C->taille; indexLitteral++) {
+        int litt = C->litteraux[indexLitteral];
+        int var = abs(litt);
+        int val = S->variables[var - 1];
+        if ((litt > 0 && val == 1) || (litt < 0 && val == 0)) {
+            return true;
+        }
+    }  
+    return false; 
+}
+
+int clauseConflict(struct clause *C, struct solution *S) {
+    for (int indexLitteral = 0; indexLitteral < C->taille; indexLitteral++) {
+        int litt = C->litteraux[indexLitteral];
+        int var = abs(litt);
+        int val = S->variables[var - 1];
+        if (val == 0) {return false;}
+        if ((litt > 0 && val == 1) || (litt < 0 && val == 0)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 int check(struct probleme *P, struct solution *S) {

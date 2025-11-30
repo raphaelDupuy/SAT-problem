@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "dpll.h"
 #include "naif.h"
 #include "satStructure.h"
 
@@ -161,6 +162,8 @@ AlgoFunc parseAlgo(char algoName) {
 
     if (algoName == 'n' || algoName == 'N') {
         return &satisfyNaif;
+    } else if (algoName == 'd' || algoName == 'D') {
+        return &satisfyDPLL;
     } else {
         return NULL;
     }

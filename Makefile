@@ -7,7 +7,7 @@ BUILD_DIR = build
 BIN_DIR = bin
 
 # --- Librairie algorithmes ---
-ALGO_SRC = $(SRC_DIR)/naif.c $(SRC_DIR)/satStructure.c
+ALGO_SRC = $(SRC_DIR)/naif.c $(SRC_DIR)/satStructure.c $(SRC_DIR)/dpll.c
 ALGO_OBJ = $(ALGO_SRC:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
 ALGO_LIB = $(BUILD_DIR)/libalgos.a
 
