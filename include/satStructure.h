@@ -34,5 +34,8 @@ int check(struct probleme *P, struct solution *S);
 void freeProbleme(struct probleme *P);
 void freeSolution(struct solution *S);
 void freeResult(struct result *R);
+int satisfiesClause(struct clause *C, struct solution *S);
+int clauseConflict(struct clause *C, struct solution *S);
+
 
 #endif

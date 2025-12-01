@@ -5,8 +5,12 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "picosat_wrapper.h"
 #include "dpll.h"
 #include "naif.h"
+#include "ppsz.h"
+#include "schoning.h"
+#include "schoningU.h"
 #include "satStructure.h"
 
 typedef enum {
@@ -164,7 +168,15 @@ AlgoFunc parseAlgo(char algoName) {
         return &satisfyNaif;
     } else if (algoName == 'd' || algoName == 'D') {
         return &satisfyDPLL;
-    } else {
+    } else if (algoName == 'p' || algoName == 'P') {
+        return &satisfyPPSZ;
+    } else if (algoName == 's' || algoName == 'S') {
+        return &satisfySchoning;
+    } else if (algoName == 'u' || algoName == 'U') {
+        return &satisfySchoningU;
+    } else if (algoName == 'c' || algoName == 'C') {
+        return &satisfyPicosat;
+    }  else {
         return NULL;
     }
 

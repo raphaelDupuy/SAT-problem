@@ -3,8 +3,6 @@
 
 #include "satStructure.h"
 
-static struct probleme *copyProbleme(const struct probleme *P);
 struct result *satisfyDPLL(struct probleme *P);
-
 
 #endif
