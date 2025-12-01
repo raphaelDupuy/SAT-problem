@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import subprocess
 import sys
 import re
@@ -86,25 +84,25 @@ def save_benchmark_data(results, database_path):
 
     print(f"\n✓ Données sauvegardées: {filepath}")
     return filepath
+
 def plot_benchmark_results(results, database_path):
-    """Crée un graphique comparatif"""
+    """Crée un graphique comparatif avec temps en secondes"""
 
     # --- Créer dossier data/png s'il n'existe pas ---
     png_dir = "results/png"
     os.makedirs(png_dir, exist_ok=True)
 
-    algo_labels = []
-    times = []
-    
-    for algo in sorted(results.keys()):
-        if results[algo] and results[algo].get('mean_time'):
-            algo_labels.append(algo)
-            times.append(results[algo]['mean_time'])
-    
-    if not times:
+    # Filtrer les algos valides
+    algo_times = [(algo, data['mean_time']) for algo, data in results.items() if data.get('mean_time') is not None]
+
+    if not algo_times:
         print("Aucune donnée à afficher")
         return
-    
+
+    # Trier par temps décroissant
+    algo_times.sort(key=lambda x: x[1], reverse=True)
+    algo_labels, times = zip(*algo_times)
+
     algo_names = {
         'n': 'Naïf',
         'd': 'DPLL',
@@ -113,20 +111,19 @@ def plot_benchmark_results(results, database_path):
         'u': 'Schöning+UP',
         'c': 'Picosat (CDCL)'
     }
-    
+
     labels = [algo_names.get(a, a) for a in algo_labels]
-    
+
     fig, ax = plt.subplots(figsize=(10, 6))
-    bars = ax.bar(labels, times)
+    bars = ax.bar(labels, times, color=['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F'][:len(times)])
 
     ax.set_ylabel('Temps CPU (secondes)', fontsize=12)
     ax.set_title(f'Comparaison Algorithmes SAT\n{database_path}', fontsize=14, fontweight='bold')
     ax.set_ylim(bottom=0)
 
-    for bar in bars:
-        height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2., height,
-                f'{height:.6f}s',
+    for bar, t in zip(bars, times):
+        ax.text(bar.get_x() + bar.get_width()/2., bar.get_height(),
+                f'{t:.2e} s',
                 ha='center', va='bottom', fontsize=9)
 
     plt.tight_layout()
